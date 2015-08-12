@@ -1,0 +1,89 @@
+/* ----------------------------------------------------------------------------------------------------*/
+/* Brandon Frank
+/* Ethereum Blockchain Private Node Setup w/ NodeJS Server Instructions
+/* August 11, 2015
+/* ----------------------------------------------------------------------------------------------------*/
+
+SERVER TYPE: ubuntu-1404-trusty-v20150805
+
+RATOM INSTALL (local setup):
+emacs ~/.ssh/config
+Host www.host.com
+	RemoteForward 52698 localhost:52698
+
+SERVER FILE SYSTEM:
+mkdir MyApplication
+cd MyApplication
+mkdir Blockchain
+mkdir Server
+cd Blockchain
+bash <(curl https://install-geth.ethereum.org -L)
+
+RATOM INSTALL:
+sudo curl -o /usr/local/bin/rmate https://raw.githubusercontent.com/aurora/rmate/master/rmate
+sudo chmod +x /usr/local/bin/rmate
+sudo mv /usr/local/bin/rmate /usr/local/bin/ratom
+
+SCREEN INSTALL:
+sudo apt-get update
+sudo apt-get install screen
+
+//start new screen
+screen
+// detach screen
+control-a d
+// re-attach screen
+screen-r
+
+NODE+EXPRESS INSTALL:
+sudo apt-get install nodejs
+sudo apt-get install npm
+sudo npm install express
+sudo apt-get install nodejs-legacy
+sudo apt-get install git
+sudo npm install web3
+sudo npm install body-parser
+sudo npm install node-where
+
+WEB SERVER INSTALL:
+sudo apt-get install apache2
+
+SOLC INSTALL:
+sudo add-apt-repository ppa:ethereum/ethereum
+sudo apt-get update
+sudo apt-get install solc
+which solc
+admin.setSolc("****path/to/solc****")  //Run in console
+
+SQUARE ONE OPERATIONS
+//create blank genesis block - gen.json
+<- file start ->
+{
+    "nonce": "0x0000000000000042",
+    "difficulty": "0x000000100",
+    "alloc": {
+    },
+    "mixhash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "coinbase": "0x0000000000000000000000000000000000000000",
+    "timestamp": "0x00",
+    "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "gasLimit": "0x16388"
+}
+<- file end ->
+
+//Create account on the blockchain
+geth --genesis ~/MyApplication/Blockchain/gen.json --datadir ~/MyApplication/Blockchain/dapp/ --networkid 12345 --nodiscover --maxpeers 0 --verbosity 6 account new
+
+//Main coinbase created (account : password)
+0x0000000000000000000000000000000000000001 : 12345678
+
+//Create file password.txt
+<- file start ->
+12345678
+<- file end ->
+
+//Run blockchain with mining
+geth --genesis ~/MyApplication/Blockchain/gen.json --datadir ~/MyApplication/Blockchain/dapp/ --networkid 12345 --nodiscover --maxpeers 0 --verbosity 6 --mine --minerthreads 4 --autodag --rpc --rpcport 8110 --rpcapi "admin,db,eth,debug,miner,net,shh,txpool,personal,web3" --etherbase 0x0000000000000000000000000000000000000001 --unlock 0x0000000000000000000000000000000000000001 --password password.txt console 2>>log.txt
+
+ETHEREUM KNOWLEDGE
+ - Check existence of variable in Solitity: "To your problem about identifying existence of a record in a mapping. Not possible without some artificial means (ie: in solidity all records "virtually" exist in the case of a mapping). But you can add a bool to your struct. Bool will default to false, so it acts as an "exists" check, set to true upon creating a new record."
